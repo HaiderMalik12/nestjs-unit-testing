@@ -2,17 +2,30 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
-  let service: UsersService;
+   
+  it('should create a new user', () => {
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService],
-    }).compile();
+    const service = new UsersService();
 
-    service = module.get<UsersService>(UsersService);
-  });
+    const user = service.createUser('John', 'john@example.com');
+    expect(user.name).toBe('John');
+    expect(user.email).toBe('john@example.com')
+    expect(user.id).toBe(1)
+  })
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+
+  it('should create two users with diff ids', () => {
+
+    const service = new UsersService();
+
+    const user = service.createUser('John', 'john@example.com');
+    const user2 = service.createUser("Jane", "jane@example.com");
+
+    expect(user.name).toBe('John');
+    expect(user.email).toBe('john@example.com')
+    expect(user.id).toBe(1)
+
+    expect(user2.id).toBe(2)
+  })
+  
 });
