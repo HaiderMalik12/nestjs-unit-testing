@@ -3,9 +3,14 @@ import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
-  beforeEach(() => {
-    service = new UsersService();
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [UsersService],
+    }).compile();
+    service = module.get<UsersService>(UsersService);
   });
+
   describe('createUser', () => {
     it('should create a new user', () => {
       const user = service.createUser('John', 'john@example.com');
