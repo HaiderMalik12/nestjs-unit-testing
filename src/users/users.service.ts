@@ -12,6 +12,9 @@ export class UsersRepository {
   findAll(){
     return []
   }
+  delete(id: number){
+    return true;
+  }
 }
 @Injectable()
 export class UsersService {
@@ -39,14 +42,6 @@ export class UsersService {
     return this.repo.findAll();
   }
   deleteUser(id: number) {
-    const index = this.users.findIndex((user) => user.id === id);
-
-    if (index === -1) {
-      return false;
-    }
-
-    this.users.splice(index, 1);
-
-    return true;
+    return this.repo.delete(id);
   }
 }

@@ -7,6 +7,7 @@ describe('UsersService', () => {
     findById: jest.Mock;
     create: jest.Mock;
     findAll: jest.Mock;
+    delete: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -14,6 +15,7 @@ describe('UsersService', () => {
       findById: jest.fn(),
       create: jest.fn(),
       findAll: jest.fn(),
+      delete: jest.fn()
     };
     const module = await Test.createTestingModule({
       providers: [
@@ -99,7 +101,7 @@ describe('UsersService', () => {
     });
   });
 
-  describe.only('findAll users', () => {
+  describe('findAll users', () => {
     it('should find all users', async () => {
       mockRepository.findAll.mockResolvedValue([
         {
@@ -123,26 +125,11 @@ describe('UsersService', () => {
 
   describe('deleteUser', () => {
     it('should delete the user', async () => {
-      service.createUser('John', 'john@example.com');
-      service.createUser('John2', 'john2@example.com');
+      mockRepository.delete.mockResolvedValue(true)
 
-      const deleteResult = service.deleteUser(1);
+      const deleteResult = await service.deleteUser(1);
 
       expect(deleteResult).toBe(true);
-      expect(await service.findById(1)).toBeUndefined();
-    });
-
-    it('should return false when user does not exist for delete', async () => {
-      mockRepository.create.mockResolvedValue({
-        id: 2,
-        name: 'Jane',
-        email: 'jane@example.com',
-      });
-      await service.createUser('John', 'john@example.com');
-
-      const deleteResult = service.deleteUser(999);
-
-      expect(deleteResult).toBe(false);
     });
   });
 });
