@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
+export class UsersRepository {
+  //real db call
+  findById(id: number){
+    return null;
+  }
+}
+@Injectable()
 export class UsersService {
+  constructor(private readonly repo: UsersRepository) {}
   private users: {
     id: number;
     name: string;
@@ -17,8 +25,9 @@ export class UsersService {
     this.users.push(user);
     return user;
   }
-  findById(id: number) {
-    return this.users.find((user) => user.id === id);
+  async findById(id: number) {
+    // return this.users.find((user) => user.id === id);
+    return this.repo.findById(id);
   }
   findAll() {
     return this.users;
