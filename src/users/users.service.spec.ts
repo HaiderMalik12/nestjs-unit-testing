@@ -65,6 +65,12 @@ describe('UsersService', () => {
       expect(await service.findById(999)).toBeUndefined();
       expect(mockRepository.findById).toHaveBeenCalledWith(999);
     });
+
+    it('should throw when repository fails', async() => {
+      mockRepository.findById.mockRejectedValue(new Error('Database Error'));
+
+      await expect(service.findById(1)).rejects.toThrow('Database Error')
+    })
   });
 
   describe('findAll users', () => {
