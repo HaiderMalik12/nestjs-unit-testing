@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersRepository, UsersService } from './users.service';
+import { ConflictException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -8,6 +9,7 @@ describe('UsersService', () => {
     create: jest.Mock;
     findAll: jest.Mock;
     delete: jest.Mock;
+    findByEmail: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -15,7 +17,8 @@ describe('UsersService', () => {
       findById: jest.fn(),
       create: jest.fn(),
       findAll: jest.fn(),
-      delete: jest.fn()
+      delete: jest.fn(),
+      findByEmail: jest.fn(),
     };
     const module = await Test.createTestingModule({
       providers: [
@@ -31,6 +34,8 @@ describe('UsersService', () => {
 
   describe('createUser', () => {
     it('should create a new user', async () => {
+      mockRepository.findByEmail.mockResolvedValue(undefined);
+
       mockRepository.create.mockResolvedValue({
         id: 1,
         name: 'John',
@@ -45,6 +50,7 @@ describe('UsersService', () => {
       expect(mockRepository.create).toHaveBeenCalledTimes(1);
     });
     it('should create two users with diff ids', async () => {
+      mockRepository.findByEmail.mockResolvedValue(undefined);
       // pretend that repo created user successfully in the db
       mockRepository.create
         .mockResolvedValueOnce({
@@ -67,6 +73,18 @@ describe('UsersService', () => {
         email: 'jane@example.com',
       });
       expect(mockRepository.create).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw if email already exist', async () => {
+      mockRepository.findByEmail.mockResolvedValue({
+        id: 1,
+        name: 'John',
+        email: 'john@example.com',
+      });
+
+      await expect(
+        service.createUser('John', 'john@example.com'),
+      ).rejects.toThrow(ConflictException);
     });
   });
 
@@ -119,17 +137,25 @@ describe('UsersService', () => {
       const users = await service.findAll();
 
       expect(users).toHaveLength(2);
-      expect(mockRepository.findAll).toHaveBeenCalled()
+      expect(mockRepository.findAll).toHaveBeenCalled();
     });
   });
 
   describe('deleteUser', () => {
     it('should delete the user', async () => {
-      mockRepository.delete.mockResolvedValue(true)
+      mockRepository.delete.mockResolvedValue(true);
 
       const deleteResult = await service.deleteUser(1);
 
       expect(deleteResult).toBe(true);
+    });
+
+    it('should delete false if user does not exist', async () => {
+      mockRepository.delete.mockResolvedValue(false);
+
+      const deleteResult = await service.deleteUser(999);
+
+      expect(deleteResult).toBe(false);
     });
   });
 });

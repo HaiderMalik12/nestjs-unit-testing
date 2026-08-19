@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UsersRepository {
@@ -9,11 +9,14 @@ export class UsersRepository {
   create(data: { id: number; name: string; email: string }) {
     return null;
   }
-  findAll(){
-    return []
+  findAll() {
+    return [];
   }
-  delete(id: number){
+  delete(id: number) {
     return true;
+  }
+  findByEmail(email: string) {
+    return null;
   }
 }
 @Injectable()
@@ -26,6 +29,10 @@ export class UsersService {
   }[] = [];
 
   async createUser(name: string, email: string) {
+    const existingUser = await this.repo.findByEmail(email);
+    if (existingUser) {
+      throw new ConflictException('User already created with this email');
+    }
     const user = {
       id: this.users.length + 1,
       name,
